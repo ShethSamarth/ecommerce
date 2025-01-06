@@ -1,0 +1,31 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model Admin {
+  id           String         @id @default(cuid())
+  firstName    String
+  lastName     String
+  email        String         @unique
+  password     String
+  refreshToken RefreshToken[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model RefreshToken {
+  id    String @id @default(cuid())
+  token String
+
+  admin   Admin  @relation(fields: [adminId], references: [id])
+  adminId String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
