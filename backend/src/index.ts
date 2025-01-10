@@ -1,10 +1,10 @@
 import { Hono } from "hono"
 
-const app = new Hono()
+import { authMiddleware } from "./middleware/auth"
 
-app.get("/", (c) => {
-  return c.text("Hello Backend!")
-})
+const app = new Hono<{ Variables: Variables }>()
+
+app.use("/api/*", authMiddleware)
 
 export default {
   port: process.env.PORT || 8888,

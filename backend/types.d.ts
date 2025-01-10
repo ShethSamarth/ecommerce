@@ -1,0 +1,3 @@
+interface Variables {
+  id: string
+}
