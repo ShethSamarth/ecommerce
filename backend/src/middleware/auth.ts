@@ -16,7 +16,7 @@ export const authMiddleware: MiddlewareHandler = async (c, next) => {
 
   try {
     const payload = await new Promise<any>((resolve, reject) =>
-      verify(token, process.env.JWT_SECRET!, (err, decoded) => {
+      verify(token, process.env.ACCESS_TOKEN_SECRET!, (err, decoded) => {
         if (err) reject(err)
         else resolve(decoded)
       })

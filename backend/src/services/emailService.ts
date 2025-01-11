@@ -1,6 +1,6 @@
 import { createTransport } from "nodemailer"
 
-import { loadTemplate } from "../email-templates"
+import { loadTemplate } from "@/email-templates"
 
 type sendEmailProps = {
   to: string
