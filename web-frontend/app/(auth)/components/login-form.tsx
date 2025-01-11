@@ -1,8 +1,12 @@
 "use client"
 
 import { z } from "zod"
+import { toast } from "sonner"
+import Cookies from "js-cookie"
 import { useState } from "react"
+import axios, { AxiosError } from "axios"
 import { useForm } from "react-hook-form"
+import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { Eye, EyeOff, Loader, ShoppingCart } from "lucide-react"
 
@@ -22,11 +26,13 @@ const loginSchema = z.object({
   email: z.string().email(),
   password: z
     .string()
-    .min(6, { message: "Should be minimum 6 characters" })
+    .min(8, { message: "Should be minimum 8 characters" })
     .max(20, { message: "Should be maximum 20 characters" })
 })
 
 export const LoginForm = () => {
+  const router = useRouter()
+
   const [showPassword, setShowPassword] = useState<boolean>(false)
 
   const form = useForm<z.infer<typeof loginSchema>>({
@@ -39,14 +45,44 @@ export const LoginForm = () => {
 
   const { isSubmitting } = form.formState
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    const result = loginSchema.safeParse(values)
-    console.log(result)
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      const response = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/auth/admin-sign-in`,
+        values
+      )
 
-    if (!result.success) {
-      console.error(result.error.errors)
-    } else {
-      console.log("Validation successful!")
+      if (response instanceof AxiosError) throw response
+
+      const { accessToken, refreshToken } = response.data.data
+
+      Cookies.set("accessToken", accessToken, {
+        path: "/",
+        expires: 7,
+        secure: true,
+        sameSite: "strict"
+      })
+
+      Cookies.set("refreshToken", refreshToken, {
+        path: "/",
+        expires: 7,
+        secure: true,
+        sameSite: "strict"
+      })
+
+      toast.success("Login Successful", {
+        description: "Redirecting to dashboard."
+      })
+
+      router.refresh()
+    } catch (error) {
+      if (error instanceof AxiosError) {
+        toast.error(error.response?.data.error[0].name, {
+          description: error.response?.data.error[0].message
+        })
+      } else {
+        toast.error("Network Error", { description: "Please try again later." })
+      }
     }
   }
 

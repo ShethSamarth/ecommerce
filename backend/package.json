@@ -1,7 +1,7 @@
 {
   "name": "backend",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "dev": "bun run --watch src/index.ts",
     "start": "bun src/index.ts",
     "db:generate": "prisma generate",
     "db:studio": "prisma studio",

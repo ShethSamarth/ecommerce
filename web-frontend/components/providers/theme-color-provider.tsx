@@ -3,6 +3,7 @@
 import { ThemeProviderProps, useTheme } from "next-themes"
 import { createContext, useContext, useEffect, useState } from "react"
 
+import { Toaster } from "@/components/ui/sonner"
 import { ThemeColors, themes } from "@/constants/theme"
 import { THEME_COLOR_STORAGE_KEY } from "@/constants/values"
 
@@ -62,6 +63,11 @@ export const ThemeColorProvider = ({ children }: ThemeProviderProps) => {
   return (
     <ThemeColorContext.Provider value={{ themeColor, setThemeColor }}>
       {children}
+      <Toaster
+        richColors
+        position="top-center"
+        theme={theme as "light" | "dark"}
+      />
     </ThemeColorContext.Provider>
   )
 }
