@@ -2,9 +2,8 @@
 
 import { z } from "zod"
 import { toast } from "sonner"
-import Cookies from "js-cookie"
 import { useState } from "react"
-import axios, { AxiosError } from "axios"
+import { AxiosError } from "axios"
 import { useForm } from "react-hook-form"
 import { useRouter } from "next/navigation"
 import { zodResolver } from "@hookform/resolvers/zod"
@@ -18,6 +17,7 @@ import {
   FormLabel,
   FormMessage
 } from "@/components/ui/form"
+import { apiClient } from "@/lib/api-client"
 import { Input } from "@/components/ui/input"
 import { Button } from "@/components/ui/button"
 import { STORE_NAME } from "@/constants/values"
@@ -47,28 +47,9 @@ export const LoginForm = () => {
 
   const onSubmit = async (values: z.infer<typeof loginSchema>) => {
     try {
-      const response = await axios.post(
-        `${process.env.NEXT_PUBLIC_API_URL}/auth/admin-sign-in`,
-        values
-      )
+      const response = await apiClient.post("/auth/admin-sign-in", values)
 
       if (response instanceof AxiosError) throw response
-
-      const { accessToken, refreshToken } = response.data.data
-
-      Cookies.set("accessToken", accessToken, {
-        path: "/",
-        expires: 7,
-        secure: true,
-        sameSite: "strict"
-      })
-
-      Cookies.set("refreshToken", refreshToken, {
-        path: "/",
-        expires: 7,
-        secure: true,
-        sameSite: "strict"
-      })
 
       toast.success("Login Successful", {
         description: "Redirecting to dashboard."
@@ -77,7 +58,7 @@ export const LoginForm = () => {
       router.refresh()
     } catch (error) {
       if (error instanceof AxiosError) {
-        toast.error(error.response?.data.error[0].name, {
+        toast.error(error.response?.data.error[0].name ?? "Internal Error", {
           description: error.response?.data.error[0].message
         })
       } else {
